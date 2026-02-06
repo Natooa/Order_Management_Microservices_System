@@ -1,0 +1,24 @@
+# IntelliJ / Eclipse
+*.iml
+.idea/
+*.classpath
+*.project
+*.swp
+*~
+
+
+# Target / Build
+**/target/
+**/build/
+
+# Spring Boot config
+**/application.yml
+**/application-*.yml
+
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
