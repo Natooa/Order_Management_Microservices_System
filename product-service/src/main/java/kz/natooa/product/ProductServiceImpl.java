@@ -2,9 +2,11 @@ package kz.natooa.product;
 
 import kz.natooa.common.exception.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -73,15 +75,28 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Product findByNameIgnoreCase(String name) {
-        return notFound(() -> productRepository.findByNameIgnoreCase(name), "Product with name: " + name + " not found");
+    public PagedModel<Product> findByNameIgnoreCase(String name, Pageable pageable) {
+        Page<Product> products = productRepository.findByNameIgnoreCase(name, pageable);
+        return new PagedModel<>(products);
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public PagedModel<Product> findAll(Pageable pageable) {
+        Page<Product> products = productRepository.findAll(pageable);
+        return new PagedModel<>(products);
     }
 
+    @Override
+    public PagedModel<Product> findByPriceBetween(Double minPrice, Double maxPrice, Pageable pageable) {
+        Page<Product> products = productRepository.findByPriceBetween(minPrice, maxPrice, pageable);
+        return new PagedModel<>(products);
+    }
+
+    @Override
+    public PagedModel<Product> findByCategory(String category, Pageable pageable) {
+        Page<Product> products = productRepository.findByCategoryIgnoreCase(category, pageable);
+        return new PagedModel<>(products);
+    }
 
     private Product notFound(Supplier<Optional<Product>> supplier, String message){
         return supplier.get().orElseThrow(() -> new ProductNotFoundException(message));

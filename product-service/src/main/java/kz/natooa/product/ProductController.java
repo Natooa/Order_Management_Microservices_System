@@ -1,7 +1,10 @@
 package kz.natooa.product;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +43,47 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
+    @GetMapping("/findByNameIgnoreCase")
+    public ResponseEntity<PagedModel<Product>> findByNameIgnoreCase(
+            @RequestParam String name,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size
+    ) {
+        int validatedSize = (size < 1) ? 20 : size;
+        Pageable pageable = PageRequest.of(page, validatedSize);
+        return ResponseEntity.ok(productService.findByNameIgnoreCase(name, pageable));
+    }
+
     @GetMapping("/all")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<PagedModel<Product>> findAllProducts(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size
+    ) {
+        int validatedSize = (size < 1) ? 20 : size;
+        Pageable pageable = PageRequest.of(page, validatedSize);
+        return ResponseEntity.ok(productService.findAll(pageable));
+    }
+
+    @GetMapping("/findByPriceBetween")
+    public ResponseEntity<PagedModel<Product>> findByPriceBetween(
+            @RequestParam(value = "minPrice", defaultValue = "0") Double minPrice,
+            @RequestParam(value = "maxPrice", defaultValue = "10000") Double maxPrice,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size
+    ) {
+        int validatedSize = (size < 1) ? 20 : size;
+        Pageable pageable = PageRequest.of(page, validatedSize);
+        return ResponseEntity.ok(productService.findByPriceBetween(minPrice, maxPrice, pageable));
+    }
+
+    @GetMapping("/findByCategory")
+    public ResponseEntity<PagedModel<Product>> findByCategory(
+            @RequestParam(value = "category", defaultValue = "") String category,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "20") int size
+    ){
+        int validatedSize = (size < 1) ? 20 : size;
+        Pageable pageable = PageRequest.of(page, validatedSize);
+        return ResponseEntity.ok(productService.findByCategory(category, pageable));
     }
 }
