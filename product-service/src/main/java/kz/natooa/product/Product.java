@@ -3,6 +3,7 @@ package kz.natooa.product;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import jakarta.validation.constraints.*;
 
@@ -24,6 +25,7 @@ public class Product {
     @Indexed
     @NotBlank(message = "Product name cannot be blank")
     @Size(max=255, message = "Product name cannot be longer than 255 characters")
+    @TextIndexed(weight = 3)
     private String name;
 
     @DecimalMin(value = "0.0", inclusive = false ,message = "Price cannot be less than 0.0")
@@ -36,6 +38,7 @@ public class Product {
     @NotBlank(message = "Category cannot be blank")
     private String category;
 
+    @TextIndexed
     private String description;
     private Map<String, Object> attributes;
     private String imageUrl;
