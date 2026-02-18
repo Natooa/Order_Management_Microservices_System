@@ -1,6 +1,8 @@
 package kz.natooa.product;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -9,6 +11,7 @@ import kz.natooa.common.dto.PagedResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -58,43 +61,23 @@ public class ProductController {
             @PageableDefault(size = 20, page = 0) Pageable pageable
     ) {
         Page<Product> page = productService.findByNameIgnoreCase(name, pageable);
-        List<ProductDTO> dtoList = page.map(productMapper::productToProductDTO).getContent();
+        List<ProductDTO> dtoList = productMapper.productPageToProductDTOList(page);
 
-        PagedResponse<ProductDTO> response = new PagedResponse<>(
-                dtoList,
-                new PagedResponse.PageInfo(
-                        page.getNumber() + 1,
-                        page.getSize(),
-                        page.getTotalElements(),
-                        page.getTotalPages()
-                )
-        );
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(productService.response(dtoList, page));
     }
 
     @GetMapping("/search")
     public ResponseEntity<PagedResponse<ProductDTO>> search(
-            @RequestParam(name = "q", required = false) String q,
+            @RequestParam(name = "q", required = false)@Size(min=2, max = 255) String q,
             @RequestParam(name = "category", required = false) String category,
-            @RequestParam(name = "minPrice", required = false) Double minPrice,
-            @RequestParam(name = "maxPrice", required = false) Double maxPrice,
+            @RequestParam(name = "minPrice", required = false)@DecimalMin("0.0") BigDecimal minPrice,
+            @RequestParam(name = "maxPrice", required = false) BigDecimal maxPrice,
             Pageable pageable
 ) {
     Page<Product> page = productService.search(q, category, minPrice, maxPrice, pageable);
-    List<ProductDTO> dtoList = page.map(productMapper::productToProductDTO).getContent();
+    List<ProductDTO> dtoList = productMapper.productPageToProductDTOList(page);
 
-        PagedResponse<ProductDTO> response = new PagedResponse<>(
-                dtoList,
-                new PagedResponse.PageInfo(
-                        page.getNumber() + 1,
-                        page.getSize(),
-                        page.getTotalElements(),
-                        page.getTotalPages()
-                )
-        );
-
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(productService.response(dtoList, page));
 }
 
 }
