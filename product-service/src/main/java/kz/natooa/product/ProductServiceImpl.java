@@ -1,5 +1,6 @@
 package kz.natooa.product;
 
+import kz.natooa.common.dto.PagedResponse;
 import kz.natooa.common.exception.ProductNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
 import org.springframework.hateoas.PagedModel;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -77,22 +80,18 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Page<Product> search(String q, String category, Double minPrice, Double maxPrice, Pageable pageable) {
+    public Page<Product> search(String q, String category, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
         log.info("Searching products: q={}, category={}, minPrice={}, maxPrice={}", q, category, minPrice, maxPrice);
         List<Criteria> criteriaList = new ArrayList<>();
 
         Query query = new Query();
 
         if (q != null && !q.isBlank()) {
-            criteriaList.add(new Criteria().orOperator(
-                    Criteria.where("name").regex(q, "i"),
-                    Criteria.where("description").regex(q, "i"),
-                    Criteria.where("attributes").regex(q, "i")
-            ));
+            query.addCriteria(TextCriteria.forDefaultLanguage().matching(q));
         }
 
         if (category != null && !category.isBlank()) {
-            criteriaList.add(Criteria.where("category").regex("^" + category + "$", "i"));
+            criteriaList.add(Criteria.where("category").is(category));
         }
         if (minPrice != null || maxPrice != null){
             Criteria price= new Criteria("price");
@@ -114,6 +113,19 @@ public class ProductServiceImpl implements ProductService{
         Page<Product> page = new PageImpl<>(products, pageable, total);
 
         return page;
+    }
+
+    @Override
+    public PagedResponse<ProductDTO> response (List<ProductDTO> dtoList, Page<Product> page){
+        return new PagedResponse<>(
+                dtoList,
+                new PagedResponse.PageInfo(
+                        page.getNumber() + 1,
+                        page.getSize(),
+                        page.getTotalElements(),
+                        page.getTotalPages()
+                )
+        );
     }
 
     private Product notFound(Supplier<Optional<Product>> supplier, String message){
