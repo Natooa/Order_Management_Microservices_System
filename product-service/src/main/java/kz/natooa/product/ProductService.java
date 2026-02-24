@@ -4,7 +4,6 @@ package kz.natooa.product;
 import kz.natooa.common.dto.PagedResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.PagedModel;
 
 import java.math.BigDecimal;
 import java.util.List;
