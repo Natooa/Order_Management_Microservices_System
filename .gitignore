@@ -14,6 +14,15 @@
 # Spring Boot config
 **/application.yml
 **/application-*.yml
+application.yml
+application-local.yml
+**/application.yaml
+**/application-*.yaml
+application.yaml
+application-local.yaml
+.env
+!.env.example
+secrets/
 
 
 # Logs

@@ -27,6 +27,8 @@
 
     <modules>
         <module>product-service</module>
+        <module>inventory-service</module>
+        <module>order-service</module>
     </modules>
 
     <dependencyManagement>
@@ -54,7 +56,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Lombok нужен везде -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
