@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class ProductServiceImpl implements ProductService{
         this.productMapper = productMapper;
     }
 
+    @Transactional
     @Override
     public Product addProduct(Product product) {
         log.info("Adding product: {}", product);
@@ -43,6 +45,7 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.save(product);
     }
 
+    @Transactional
     @Override
     public Product updateProduct(String id, ProductDTO dto) {
         log.info("Updating product: {}", dto);
@@ -55,6 +58,7 @@ public class ProductServiceImpl implements ProductService{
         return productRepository.save(oldProduct);
     }
 
+    @Transactional
     @Override
     public void removeProduct(String id) {
         log.info("Removing product with id: {}", id);
