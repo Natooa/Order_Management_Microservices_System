@@ -24,14 +24,14 @@ public class OrdersServiceImpl implements OrdersService{
         }
         List<OrderItem> createOrderItems = orderItemMapper.orderDTOListToOrderItems(orderItems);
         Orders newOrder = Orders.builder()
-                .userId()
+                .userId(userId)
                 .status(Status.CREATED)
-                .createdAt()
                 .build();
 
         for(OrderItem orderItem : createOrderItems){
-            orderItem.setOrder();
+            orderItem.setOrder(newOrder);
         }
+        return ordersRepository.save(newOrder);
     }
 
     @Override
