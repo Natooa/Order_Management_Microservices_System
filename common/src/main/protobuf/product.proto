@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "google/protobuf/struct.proto";
+import "google/type/money.proto";
+
+option java_package = "kz.natooa.product";
+option java_multiple_files = true;
+option java_outer_classname = "ProductProto";
+
+service ProductService{
+  // UNARY OPERATION
+  rpc getProduct(ProductRequest) returns (ProductResponse);
+}
+
+message ProductRequest{
+  string id=1;
+}
+
+message ProductResponse{
+  string productId=1;
+  string name=2;
+  google.type.Money price=3;
+  string category=4;
+  string description=5;
+  map<string, google.protobuf.Value> attributes=6;
+  string imageUrl=7;
+}

@@ -1,12 +1,17 @@
 package kz.natooa.orderItems;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface OrderItemMapper {
-    List<OrderItem> orderDTOListToOrderItems(List<OrderItemRequestDTO> orderItemRequestDTO);
-    OrderItemRequestDTO orderItemsToOrderDTO(OrderItem orderItem);
+
+    @Mapping(target = "priceAtPurchase", ignore = true)
+    @Mapping(target = "order", ignore = true)  // добавь это
+    @Mapping(target = "id", ignore = true)      // и это
+    OrderItem toEntity(OrderItemRequestDTO dto);
+
+    List<OrderItem> toEntityList(List<OrderItemRequestDTO> dtos);
 }
