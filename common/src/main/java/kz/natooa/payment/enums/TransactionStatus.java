@@ -1,4 +1,4 @@
-package kz.natooa.enums;
+package kz.natooa.payment.enums;
 
 public enum TransactionStatus {
     PENDING,

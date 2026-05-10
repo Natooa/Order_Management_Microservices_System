@@ -3,7 +3,7 @@ package kz.natooa.dto;
 import lombok.Builder;
 
 @Builder
-public record PaymentMethodDetails(
+public record   PaymentMethodDetails(
         String cardNumber,
         String cardHolderName,
         String expirationDate,

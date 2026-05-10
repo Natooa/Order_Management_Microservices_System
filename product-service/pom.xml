@@ -79,6 +79,7 @@
             <version>3.0.1</version>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>kz.natooa</groupId>
             <artifactId>common</artifactId>
@@ -89,6 +90,8 @@
             <groupId>org.springframework.grpc</groupId>
             <artifactId>spring-grpc-server-spring-boot-starter</artifactId>
         </dependency>
+
+
     </dependencies>
 
     <build>

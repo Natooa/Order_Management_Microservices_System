@@ -8,11 +8,10 @@ import lombok.Setter;
 import java.time.Instant;
 import java.util.UUID;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class DomainEvent{
-    UUID eventId;
-    Instant timeStamp;
+public abstract class DomainEvent{
+    UUID eventId = UUID.randomUUID();
+    Instant timeStamp = Instant.now();
 }

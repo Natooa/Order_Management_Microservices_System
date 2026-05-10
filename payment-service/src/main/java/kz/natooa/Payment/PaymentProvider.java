@@ -1,10 +1,9 @@
 package kz.natooa.Payment;
 
 import kz.natooa.dto.ProviderResponse;
-import kz.natooa.enums.PaymentMethod;
+import kz.natooa.payment.enums.PaymentMethod;
 
 import java.math.BigDecimal;
-import java.security.Provider;
 
 public interface PaymentProvider {
     PaymentMethod getSupportedPaymentMethod();

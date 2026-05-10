@@ -25,3 +25,8 @@ public class OrderMapper {
         );
     }
 }
+//order-service.com/orders
+//{
+//    "product": "product name"
+//    "quantity": num
+//}

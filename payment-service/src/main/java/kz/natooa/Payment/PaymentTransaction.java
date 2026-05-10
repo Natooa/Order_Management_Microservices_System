@@ -1,7 +1,7 @@
 package kz.natooa.Payment;
 
 import jakarta.persistence.*;
-import kz.natooa.enums.TransactionStatus;
+import kz.natooa.payment.enums.TransactionStatus;
 import kz.natooa.enums.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

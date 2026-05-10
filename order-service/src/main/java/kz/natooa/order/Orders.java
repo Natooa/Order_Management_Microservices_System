@@ -3,6 +3,7 @@ package kz.natooa.order;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import kz.natooa.orderItems.OrderItem;
+import kz.natooa.payment.enums.AvailableCurrency;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -37,6 +38,10 @@ public class Orders {
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "currency", nullable = false)
+    private AvailableCurrency currency;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "failure_reason")
     private FailureReason failureReason;
 
@@ -46,4 +51,6 @@ public class Orders {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
+
+
 }

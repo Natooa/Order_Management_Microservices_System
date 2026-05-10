@@ -2,13 +2,11 @@ package kz.natooa.dto;
 
 import kz.natooa.payment.enums.PaymentMethod;
 import kz.natooa.enums.PaymentStatus;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Builder
-public record PaymentResponse(
+public record RefundResponse(
         String paymentId,
         String orderId,
         String userId,
@@ -18,7 +16,5 @@ public record PaymentResponse(
         PaymentMethod paymentMethod,
         String externalTransactionId,
         String failureReason,
-        Instant createdAt,
-        Instant processedAt
-) {
+        Instant processedAt) {
 }

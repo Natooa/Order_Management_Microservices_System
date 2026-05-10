@@ -1,12 +1,9 @@
 package kz.natooa.Payment;
 
 import jakarta.persistence.*;
-import kz.natooa.enums.PaymentMethod;
+import kz.natooa.payment.enums.PaymentMethod;
 import kz.natooa.enums.PaymentStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -57,7 +54,7 @@ public class Payment {
     @Column(nullable = false)
     private Instant updatedAt;
 
-    @Column(nullable = false)
+    @Column
     private Instant processedAt;
 
     @Version

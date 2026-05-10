@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
@@ -18,22 +20,22 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
             @RequestHeader("X-User-Id") String userId,
-            @RequestBody List<OrderItemRequestDTO> items
-    ) {
+            @RequestBody OrderRequestDTO requestDTO
+    ) throws ExecutionException, InterruptedException {
         return ResponseEntity.ok(
-                ordersService.createOrder(userId, items)
+                ordersService.createOrder(userId, requestDTO)
         );
     }
 
-    @PutMapping("/cancel")
-    public ResponseEntity<String> cancelOrder(@RequestBody OrderIdRequest request) {
-        ordersService.cancelOrder(request.orderId());
-        return ResponseEntity.ok("Order cancelled");
-    }
-
-    @PutMapping("/confirm")
-    public ResponseEntity<String> confirmOrder(@RequestBody OrderIdRequest request) {
-        ordersService.confirmOrder(request.orderId());
-        return ResponseEntity.ok("Order confirmed");
-    }
+//    @PutMapping("/cancel")
+//    public ResponseEntity<String> cancelOrder(@RequestBody OrderIdRequest request) {
+//        ordersService.cancelOrder(request.orderId());
+//        return ResponseEntity.ok("Order cancelled");
+//    }
+//
+//    @PutMapping("/confirm")
+//    public ResponseEntity<String> confirmOrder(@RequestBody OrderIdRequest request) {
+//        ordersService.confirmOrder(request.orderId());
+//        return ResponseEntity.ok("Order confirmed");
+//    }
 }

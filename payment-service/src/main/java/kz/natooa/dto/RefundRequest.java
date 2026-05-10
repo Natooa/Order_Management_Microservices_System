@@ -3,14 +3,12 @@ package kz.natooa.dto;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import kz.natooa.payment.enums.AvailableCurrency;
 import kz.natooa.payment.enums.PaymentMethod;
-import lombok.Builder;
 
 import java.math.BigDecimal;
 
-@Builder
-public record PaymentRequest (
+public record RefundRequest(
+
         @NotNull
         String orderId,
 
@@ -23,11 +21,11 @@ public record PaymentRequest (
 
         @NotNull
         @Size(min = 3, max = 3, message = "Currency must be exactly 3 characters long")
-        AvailableCurrency currency
+        String currency,
 
-//        @NotNull
-//        PaymentMethod paymentMethod,
+        @NotNull
+        PaymentMethod paymentMethod,
 
-//        PaymentMethodDetails paymentMethodDetails
-){
+        PaymentMethodDetails paymentMethodDetails
+) {
 }
