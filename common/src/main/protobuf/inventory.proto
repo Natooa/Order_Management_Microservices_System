@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option java_package = "kz.natooa.inventory";
+option java_multiple_files = true;
+option java_outer_classname = "InventoryProto";
+
+service InventoryService{
+  //UNARY OPERATION
+  rpc reserveInventory(ReserveInventoryRequest) returns (ReserveInventoryResponse);
+
+  rpc cancelReservation(ReservationIdRequest) returns (EmptyResponse);
+
+  rpc confirmReservation(ReservationIdRequest) returns (EmptyResponse);
+}
+
+message ReserveInventoryRequest{
+  string productId=1;
+  int32 quantity=2;
+  string orderId=3;
+}
+
+message ReserveInventoryResponse{
+  string orderId=1;
+}
+
+message ReservationIdRequest{
+  string orderId=1;
+}
+
+
+
+message EmptyResponse{}

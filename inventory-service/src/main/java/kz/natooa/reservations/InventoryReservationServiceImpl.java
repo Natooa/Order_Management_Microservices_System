@@ -1,6 +1,7 @@
 package kz.natooa.reservations;
 
 import kz.natooa.inventory.InventoryService;
+import kz.natooa.inventory.ReserveInventoryResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,7 @@ public class InventoryReservationServiceImpl implements InventoryReservationServ
 
     @Transactional
     @Override
-    public void reserveInventory(String productId, Integer quantity, UUID orderId) {
+    public ReserveInventoryResponse reserveInventory(String productId, Integer quantity, UUID orderId) {
         if(productId == null || quantity == null || orderId == null){
             throw new IllegalArgumentException("Product ID, quantity, and order ID must not be null");
         }
@@ -33,10 +34,13 @@ public class InventoryReservationServiceImpl implements InventoryReservationServ
         try {
             inventoryReservationRepository.save(reservation);
         } catch (DataIntegrityViolationException e){
-            return;
+            throw new IllegalArgumentException("Inventory for this product is not available");
         }
 
         inventoryService.increaseReserved(productId, quantity);
+        return ReserveInventoryResponse.newBuilder()
+                .setOrderId(orderId.toString())
+                .build();
     }
 
     @Transactional

@@ -40,8 +40,8 @@ public class InventoryServiceImpl implements InventoryService{
 
         Inventory inventory = inventoryRepository.findByProductIdForUpdate(productId).orElseThrow(() -> new IllegalArgumentException("Product not found:  " + productId));
 
-        if(newQuantity < inventory.getReservedQuantity()){
-            throw new IllegalArgumentException("New quantity must be greater than or equal to the reserved quantity");
+        if(newQuantity < inventory.getReservedQuantity() || newQuantity.equals(inventory.getReservedQuantity())){
+            throw new IllegalArgumentException("New quantity must be greater than reserved quantity");
         }
         inventory.setTotalQuantity(newQuantity);
         return inventoryRepository.save(inventory);

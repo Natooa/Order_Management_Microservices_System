@@ -3,6 +3,50 @@ version: "3.9"
 name: my-backend-stack
 
 services:
+  product-service:
+    build:
+      context: .
+      target: product-service
+    container_name: product-service
+    ports:
+      - "8081:8081"
+      - "9002:9002"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - backend
+
+  inventory-service:
+    build:
+      context: .
+      target: inventory-service
+    container_name: inventory-service
+    ports:
+      - "8082:8082"
+      - "9001:9001"
+    depends_on:
+      - inventory-db
+    networks:
+      - backend
+
+  order-service:
+    build:
+      context: .
+      target: order-service
+    container_name: order-service
+    ports:
+      - "8083:8080"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-0:9091,kafka-1:9091,kafka-2:9091
+    depends_on:
+      - order-db
+      - product-service
+      - inventory-service
+    networks:
+      - backend
+
+
   mongodb:
     image: mongo:8.0
     container_name: mongodb
@@ -31,6 +75,8 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
+    networks:
+      - backend
 
   order-db:
     image: postgres:17
@@ -41,6 +87,120 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5434:5432"
+    networks:
+      - backend
+
+  payment-service:
+    build:
+      context: .
+      target: payment-service
+    container_name: payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-0:9091,kafka-1:9091,kafka-2:9091
+    depends_on:
+      - payment-db
+      - kafka-0
+    networks:
+      - backend
+
+  payment-db:
+    ports:
+      - "5435:5432"
+    image: postgres:17
+    container_name: payment-db
+    environment:
+      POSTGRES_DB: payment_db
+      POSTGRES_USER: payment
+      POSTGRES_PASSWORD: payment
+    networks:
+      - backend
+
+
+  kafka-0:
+    image: confluentinc/cp-kafka:8.1.0
+    container_name: kafka-0
+    hostname: kafka-0
+
+    ports:
+      - "29092:29092"
+
+    environment:
+      CLUSTER_ID: gIm881TtQhm0bPhHPeK0hA
+      KAFKA_NODE_ID: 0
+      KAFKA_PROCESS_ROLES: broker, controller
+      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:29092,CONTROLLER://:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-0:9091,EXTERNAL://kafka-0:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+    networks:
+      - backend
+
+  kafka-1:
+    image: confluentinc/cp-kafka:8.1.0
+    container_name: kafka-1
+    hostname: kafka-1
+
+    ports:
+      - "29093:29092"
+
+    environment:
+      CLUSTER_ID: gIm881TtQhm0bPhHPeK0hA
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker, controller
+      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:29092,CONTROLLER://:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9091,EXTERNAL://kafka-1:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+    networks:
+      - backend
+
+  kafka-2:
+    image: confluentinc/cp-kafka:8.1.0
+    container_name: kafka-2
+    hostname: kafka-2
+
+    ports:
+      - "29094:29092"
+
+    environment:
+      CLUSTER_ID: gIm881TtQhm0bPhHPeK0hA
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: broker, controller
+      KAFKA_LISTENERS: INTERNAL://:9091,EXTERNAL://:29092,CONTROLLER://:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 0@kafka-0:9093,1@kafka-1:9093,2@kafka-2:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9091,EXTERNAL://kafka-2:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+    networks:
+      - backend
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+    hostname: kafka-ui
+    depends_on:
+      - kafka-0
+      - kafka-1
+      - kafka-2
+    ports:
+      - 8087:8080
+    environment:
+      KAFKA_CLUSTER_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-0:9091,kafka-1:9091,kafka-2:9091
+      DYNAMIC_CONFIG_ENABLED: true
+
+    networks:
+      - backend
 
 volumes:
   mongo_data:
