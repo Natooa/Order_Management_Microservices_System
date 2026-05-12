@@ -1,4 +1,4 @@
-version: "3.9"
+#version: "3.9"
 
 name: my-backend-stack
 
@@ -27,6 +27,18 @@ services:
       - "9001:9001"
     depends_on:
       - inventory-db
+    networks:
+      - backend
+
+  shipping-service:
+    build:
+      context: .
+      target: shipping-service
+    container_name: shipping-service
+    ports:
+      - "8085:8082"
+#    depends_on:
+#      - inventory-db
     networks:
       - backend
 

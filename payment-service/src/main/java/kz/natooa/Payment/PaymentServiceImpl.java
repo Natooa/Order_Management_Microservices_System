@@ -4,8 +4,10 @@ import kz.natooa.dto.*;
 import kz.natooa.enums.*;
 import kz.natooa.events.OrderCreatedEvent;
 import kz.natooa.events.PaymentEventPublisher;
+import kz.natooa.exception.PaymentAlreadyProcessedException;
 import kz.natooa.payment.enums.PaymentMethod;
 import kz.natooa.payment.enums.TransactionStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -41,11 +43,12 @@ public class PaymentServiceImpl implements PaymentService{
 
     @Retryable(
             value = {RuntimeException.class},
+            exclude = {PaymentAlreadyProcessedException.class, DataIntegrityViolationException.class},
             maxAttempts = 5,
             backoff = @Backoff(delay = 1000)
     )
     @Override
-    public PaymentResponse processPayment(OrderCreatedEvent request) {
+    public PaymentResponse processPayment(OrderCreatedEvent request) throws PaymentAlreadyProcessedException {
         validatePaymentRequest(request);
 
         Payment payment = createPayment(request);
@@ -62,8 +65,13 @@ public class PaymentServiceImpl implements PaymentService{
             eventPublisher.publishPaymentCompleted(transaction);
 
             return paymentMapper.paymentToPaymentResponse(payment);
-        }catch (Exception e){
+        }catch (RuntimeException e){
+            payment.setPaymentStatus(PaymentStatus.FAILED);
+            payment.setFailureReason(e.getMessage());
+            paymentRepository.save(payment);
+
             eventPublisher.publishPaymentFailed(payment);
+
             throw new RuntimeException("Payment processing failed", e);
         }
     }
@@ -83,12 +91,12 @@ public class PaymentServiceImpl implements PaymentService{
 
 
 
-    private void validatePaymentRequest(OrderCreatedEvent request) {
+    private void validatePaymentRequest(OrderCreatedEvent request) throws PaymentAlreadyProcessedException {
         if(request.getOrderId() == null) {
             throw new IllegalArgumentException("Order ID is required");
         }
         if(paymentRepository.findByOrderId(request.getOrderId()).isPresent()) {
-            throw new IllegalArgumentException("Order already processed");
+            throw new PaymentAlreadyProcessedException("Order already processed");
         }
         if(request.getUserId() == null) {
             throw new IllegalArgumentException("User ID is required");
@@ -106,20 +114,22 @@ public class PaymentServiceImpl implements PaymentService{
 //    }
 
     private Payment createPayment(OrderCreatedEvent request) {
-        var payment = Payment.builder()
-                .paymentId(UUID.randomUUID().toString())
-                .orderId(request.getOrderId())
-                .userId(request.getUserId())
-                .amount(request.getTotalPrice())
-                .currency(request.getCurrency().toString())
-                .paymentStatus(PaymentStatus.PENDING)
-                .paymentMethod(PaymentMethod.CREDIT_CARD)
-                .createdAt(Instant.now())
-                .updatedAt(Instant.now())
-                .processedAt(null)
-                .build();
-        paymentRepository.save(payment);
-        return payment;
+        return paymentRepository.findByOrderId(request.getOrderId())
+                .orElseGet(() -> {
+                    var payment = Payment.builder()
+                            .paymentId(UUID.randomUUID().toString())
+                            .orderId(request.getOrderId())
+                            .userId(request.getUserId())
+                            .amount(request.getTotalPrice())
+                            .currency(request.getCurrency().toString())
+                            .paymentStatus(PaymentStatus.PENDING)
+                            .paymentMethod(PaymentMethod.CREDIT_CARD)
+                            .createdAt(Instant.now())
+                            .updatedAt(Instant.now())
+                            .processedAt(null)
+                            .build();
+                    return paymentRepository.save(payment);
+                });
     }
 
     private void updatePaymentStatus(Payment payment, ProviderResponse response) {

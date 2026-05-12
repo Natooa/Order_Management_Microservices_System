@@ -1,6 +1,8 @@
-package kz.natooa.events;
+package kz.natooa;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kz.natooa.events.OrderCreatedEvent;
+import kz.natooa.events.PayloadToOrderCreatedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
