@@ -22,7 +22,7 @@ public class Payment {
     @Column(nullable = false, unique = true)
     private String paymentId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String orderId;
 
     @Column(nullable = false)
