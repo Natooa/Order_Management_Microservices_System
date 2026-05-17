@@ -37,8 +37,23 @@ services:
     container_name: shipping-service
     ports:
       - "8085:8082"
-#    depends_on:
-#      - inventory-db
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-0:9091,kafka-1:9091,kafka-2:9091
+    depends_on:
+      - shipping-db
+      - order-service
+    networks:
+      - backend
+
+  shipping-db:
+    image: postgres:17
+    container_name: shipping-db
+    environment:
+      POSTGRES_DB: shipping_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
     networks:
       - backend
 

@@ -1,0 +1,10 @@
+package kz.natooa.dto;
+
+public enum ShipmentStatus {
+    PENDING,
+    DELIVERY_ASSIGNED,
+    DELIVERY_IN_PROGRESS,
+    DELIVERED_SUCCESSFULLY,
+    DELIVERED_FAILED,
+    DELEVERED_CANCELLED
+}

@@ -48,7 +48,7 @@ public class PaymentServiceImpl implements PaymentService{
             backoff = @Backoff(delay = 1000)
     )
     @Override
-    public PaymentResponse processPayment(OrderCreatedEvent request) throws PaymentAlreadyProcessedException {
+    public void processPayment(OrderCreatedEvent request) throws PaymentAlreadyProcessedException {
         validatePaymentRequest(request);
 
         Payment payment = createPayment(request);
@@ -64,7 +64,7 @@ public class PaymentServiceImpl implements PaymentService{
 
             eventPublisher.publishPaymentCompleted(transaction);
 
-            return paymentMapper.paymentToPaymentResponse(payment);
+            paymentMapper.paymentToPaymentResponse(payment);
         }catch (RuntimeException e){
             payment.setPaymentStatus(PaymentStatus.FAILED);
             payment.setFailureReason(e.getMessage());
@@ -74,11 +74,6 @@ public class PaymentServiceImpl implements PaymentService{
 
             throw new RuntimeException("Payment processing failed", e);
         }
-    }
-
-    @Override
-    public PaymentResponse getPaymentStatus(String paymentId) {
-        return null;
     }
 
     @Override
